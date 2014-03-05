@@ -21,9 +21,13 @@
 package it.mb.add2urlist;
 
 import it.mb.add2urlist.R;
+
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
@@ -32,42 +36,55 @@ import android.widget.Toast;
 
 public class Add2Urlist extends Activity {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        onNewIntent(getIntent());
-    }
+	private static final Pattern URL_REGEX = Pattern
+			.compile("(http|https)://w{0,3}\\.?[^\\s]+");
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see android.app.Activity#onNewIntent(android.content.Intent)
-     */
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        if (intent != null) {
-            if (intent.hasExtra(Intent.EXTRA_TEXT)) {
-                String text = intent.getExtras().getString(Intent.EXTRA_TEXT);
-                if (text != null) {
-                    try {
-                        Uri dst = Uri
-                                .parse("http://urli.st/bookmarklet/add?url="
-                                        + new URI(text).toURL());
-                        intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setData(dst);
-                        startActivity(intent);
-                    } catch (MalformedURLException e) {
-                        Toast.makeText(this, R.string.malformed_url,
-                                Toast.LENGTH_LONG).show();
-                    } catch (URISyntaxException e) {
-                        Toast.makeText(this, R.string.malformed_url,
-                                Toast.LENGTH_LONG).show();
-                    }
-                    finish();
-                }
-            }
-        }
-    }
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		onNewIntent(getIntent());
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onNewIntent(android.content.Intent)
+	 */
+	@Override
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+		if (intent != null) {
+			if (intent.hasExtra(Intent.EXTRA_TEXT)) {
+				String text = intent.getExtras().getString(Intent.EXTRA_TEXT);
+				if (text != null) {
+					Matcher matcher = URL_REGEX.matcher(text);
+					if (matcher.find()) {
+						// we only use the first match, it's unclear what to do
+						// if more than one match exist
+						String url = matcher.group();
+						try {
+							Uri dst = Uri
+									.parse("http://urli.st/bookmarklet/add?url="
+											+ new URI(url).toURL());
+							intent = new Intent(Intent.ACTION_VIEW);
+							intent.setData(dst);
+							startActivity(intent);
+							finish();
+							return;
+						} catch (MalformedURLException e) {
+							// the regex should be enough not to have these...
+						} catch (URISyntaxException e) {
+							// ...but if anything fails, showError() at the end
+						}
+					}
+				}
+			}
+		}
+		showError();
+	}
+
+	private void showError() {
+		Toast.makeText(this, R.string.malformed_url, Toast.LENGTH_LONG).show();
+	}
 
 }
