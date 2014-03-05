@@ -1,0 +1,38 @@
+.metadata
+bin/**
+tmp/**
+tmp/**/*
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
+
+# External tool builders
+.externalToolBuilders/
+
+# Locally stored "Eclipse launch configurations"
+*.launch
+
+# files for the dex VM
+*.dex
+
+# Java class files
+*.class
+
+# generated files
+gen/
+/assets
+/bin
+#/apk
+.DS_Store
+keystore
+Icon
+
+# UML generated files
+*.ucls
+
+# don't store the generated apk (it's a bin)
+apk/

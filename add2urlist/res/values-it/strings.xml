@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<resources>
+    <string name="app_name">Aggiungi a Urlist</string>
+    <string name="title_activity_add2_urlist">Aggiungi a Urlist</string>
+    <string name="malformed_url">URL non valido</string>
+</resources>
