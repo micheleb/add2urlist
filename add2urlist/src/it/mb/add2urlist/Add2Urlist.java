@@ -20,7 +20,7 @@
  */
 package it.mb.add2urlist;
 
-import it.mb.add2urlist.R;
+import static java.lang.String.format;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -32,12 +32,18 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 public class Add2Urlist extends Activity {
 
 	private static final Pattern URL_REGEX = Pattern
 			.compile("(http|https)://w{0,3}\\.?[^\\s]+");
+
+	private static final String URLIST_FORMAT = "http://urli.st/bookmarklet/"
+			+ "add?url=%s&title=%s";
+
+	private static final String TAG = "add2urlist";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +62,7 @@ public class Add2Urlist extends Activity {
 		if (intent != null) {
 			if (intent.hasExtra(Intent.EXTRA_TEXT)) {
 				String text = intent.getExtras().getString(Intent.EXTRA_TEXT);
+				String title = "";
 				if (text != null) {
 					Matcher matcher = URL_REGEX.matcher(text);
 					if (matcher.find()) {
@@ -63,11 +70,18 @@ public class Add2Urlist extends Activity {
 						// if more than one match exist
 						String url = matcher.group();
 						try {
-							Uri dst = Uri
-									.parse("http://urli.st/bookmarklet/add?url="
-											+ new URI(url).toURL());
+							// if we were passed a title, use it
+							if (intent.hasExtra(Intent.EXTRA_SUBJECT)) {
+								title = intent.getExtras().getString(
+										Intent.EXTRA_SUBJECT);
+							}
+							Uri dst = Uri.parse(format(URLIST_FORMAT, new URI(
+									url).toURL(), title));
 							intent = new Intent(Intent.ACTION_VIEW);
 							intent.setData(dst);
+							Log.d(TAG,
+									format("opening '%s' - URL: %s", title, dst));
+
 							startActivity(intent);
 							finish();
 							return;
